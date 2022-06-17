@@ -23,7 +23,7 @@ It is mostly just a fun javascript playground for myself that intergrates into d
    }
    ```
    Replace the "X"s with your own information. Guilds are a list so multiple discord servers can be added. 
-   Use this if there is only one guild ```"guilds": ["XXXXXXXXXXXX"]```
+   If there is only one guild use this format: ```"guilds": ["XXXXXXXXXXXX"]```
       
    Next if you don't have nodejs get it: https://nodejs.org/en/
    
