@@ -70,6 +70,12 @@ const commands = [
 		
 		for(let i = 0; i < guilds.length; i++){
 			jio.info("Adding guild: " + guilds[i]);
+			if(!jio.checkPath('./' + guilds[i])){
+				jio.makePath('./' + guilds[i]);
+				jio.warn("Made guild dir at: ./" + guilds[i]);
+			}else{
+				jio.info("Found guild dir: ./" + guilds[i]);
+			}
 			await rest.put( Routes.applicationGuildCommands(clientId, guilds[i]), { body: commands } );
 		}
 
