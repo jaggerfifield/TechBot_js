@@ -2,7 +2,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 
 const { Client, Intents } = require('discord.js');
-const client = new Client({ intents: ["GUILDS", "DIRECT_MESSAGES", "GUILD_MESSAGES"] });
+const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
 
 var jio = require('./jio.js');
 var stats = require('./stats.js');
@@ -10,13 +10,12 @@ var stats = require('./stats.js');
 var Caller = require('./caller.js');
 var run = new Caller();
 
-const TOKEN = run.getToken().toString();
-const CLIENT_ID = run.getClientID();
+//const TOKEN = run.getToken().toString();
+//const CLIENT_ID = run.getClientID();
+//const GUILD_ID = run.getGuildID();
+const { token, clientId, guilds } = require('./config.json');
 
-const GUILD_ID = run.getGuildID()[0];
-const GUILD_ID2 = run.getGuildID()[1];
-
-const rest = new REST({ version: '9' }).setToken(TOKEN);
+const rest = new REST({ version: '9' }).setToken(token);
 
 const allowGIF = false;
 
@@ -71,16 +70,11 @@ const commands = [
 (async () => {
 	try{
 		jio.info("Started refreshing application (/) commands.");
-
-		await rest.put(
-		  Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-		  { body: commands },
-		);
-
-		await rest.put(
-		  Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID2),
-		  { body: commands },
-		);
+		
+		for(let i = 0; i < guilds.length; i++){
+			jio.info("Adding guild: " + guilds[i]);
+			await rest.put( Routes.applicationGuildCommands(clientId, guilds[i]), { body: commands } );
+		}
 
 		jio.info("Successfully reloaded application (/) commands.");
 	}catch(error){
@@ -120,4 +114,4 @@ client.on('messageCreate', async message => {
 	}
 })
 
-client.login(TOKEN);
+client.login(token);
