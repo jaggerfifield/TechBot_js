@@ -13,10 +13,17 @@ It is mostly just a fun javascript playground for myself that intergrates into d
    * Info - get user and server information
 
 # How to setup
-   Three files are needed in the root directory:
-   1) key.txt - this file holds the discord bot's login key
-   2) guild.txt - this file is the guild/s (aka Discord servers) that the bot connects to. You can add more than 1 by placing the next entry on a newline.
-   3) client.txt - The discord bot's client id
+   Make a file called ```config.json``` and append the following information from discord developer portal
+   ```
+   // config.json
+   {
+       "token": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+       "guilds": ["XXXXXXXXXXXX", "XXXXXXXXXXXX"],
+       "clientId": "XXXXXXXXXXXX"
+   }
+   ```
+   Replace the "X"s with your own information. Guilds are a list so multiple discord servers can be added. 
+   Use this if there is only one guild ```"guilds": ["XXXXXXXXXXXX"]```
       
    Next if you don't have nodejs get it: https://nodejs.org/en/
    
