@@ -47,18 +47,14 @@ function updateUserScore(message){
 	var file = path + '/count.txt';
 	var content = jio.readFile(file.toString());
 	
-	if(content == -1){
-		// Make the directory for the guild
-		jio.makePath('./' + guildID);
-		jio.info("User path made!");
-		// Make the directory for a user
-		jio.makePath(path.toString());
-		content = 1;
-		jio.writeFile(file, content.toString());
-	}else{
-		content = Number(content) + 1;
-		jio.writeFile(file, content.toString());
+	if(!jio.checkPath(path)){
+		jio.makePath(path);
+		jio.warn("Path " + path + " has been created!");
+		content = 0;
 	}
+	
+	content = Number(content) + 1;
+	jio.writeFile(file, content.toString());
 }
 
 function updateServerLogs(message){
@@ -70,7 +66,7 @@ function updateServerLogs(message){
 	
 	if(content == -1){
 		content = '';
-		jio.info("Server log file made!");
+		jio.warn("Server log file made!");
 	}
 	
 	content = content + '[' + message.createdAt + '] <' + message.author.username + '> : ' + message.content + '\n';

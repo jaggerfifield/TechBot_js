@@ -10,9 +10,6 @@ var stats = require('./stats.js');
 var Caller = require('./caller.js');
 var run = new Caller();
 
-//const TOKEN = run.getToken().toString();
-//const CLIENT_ID = run.getClientID();
-//const GUILD_ID = run.getGuildID();
 const { token, clientId, guilds } = require('./config.json');
 
 const rest = new REST({ version: '9' }).setToken(token);

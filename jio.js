@@ -3,7 +3,8 @@
 module.exports = {
 	readFile: readFileSync,
 	makePath: makePath,
-	writeFile: writeFileSync,
+	writeFile: writeFile,
+	checkPath, checkPath,
 	info: info,
 	warn: warn,
 	error: error,
@@ -14,31 +15,59 @@ var fs = require('fs');
 
 function readFileSync(path){
 	var content = -1;
-
-	try{
-		fs.accessSync(path);
-	}catch{
+	
+	if(checkPath(path)){
+		// The path exists, return the content of the path.
+		content = fs.readFileSync(path).toString();
+		return content;
+	}else{
 		error("File not found: " + path);
-		return -1;
+		return content;
 	}
-
-	content = fs.readFileSync(path);
-	return content.toString();
 }
 
-function writeFileSync(path, content){
-	fs.writeFileSync(path, content, (err) => {
+function writeFile(path, content){
+	
+	fs.writeFile(path, content, (err) => {
 		if(err){
 			error(err);
 		}
 	});
+	
+	/*
+	if(checkPath(path)){
+		// The file exists!
+		fs.writeFile(path, content, (err) => {
+			if(err){
+				error(err);
+			}
+		});
+	}else{
+		warn("File not created yet: " + path);
+		var dir = path.split("/");
+		var dir_check = dir[0]
+		for(let i = 0; i < dir.length - 1; i++){
+			info("Checking that dir " + dir_check);
+			if(checkPath(dir_check)){
+				dir_check = dir_check + '/' + dir[i+1];
+			}else{
+				warn("Path " + dir_check + "not found!");
+				makedir(dir_check);
+			}
+		}
+	}
+	*/
+}
+
+function checkPath(path){
+	// return true if path exists
+	return fs.existsSync(path);
 }
 
 function makePath(path){
 	fs.mkdir(path.toString(), (err) => {
 		if(err){
 			error(err);
-			
 		};
 	});
 }
