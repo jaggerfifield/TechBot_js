@@ -1,6 +1,6 @@
 //score.js
 
-var jio = require('./jio.js');
+const jio = require('./jio.js');
 
 module.exports = {
 	call: call,
@@ -8,20 +8,18 @@ module.exports = {
 };
 
 function call(interaction){
-	var userID = interaction.user.id;
-	var guildID = interaction.guildId; 
-	
-	var choice = interaction.options.getUser('user');
+	let userID = interaction.user.id;
+	let guildID = interaction.guildId;
+	let choice = interaction.options.getUser('user');
+    
 	if(choice != null){
 		userID = choice.id;
 	}
-	
 
-	var path = './' + guildID + '/' + userID + '/count.txt'
+	let path = './' + guildID + '/' + userID + '/count.txt'
+	let score = jio.readFile(path);
 	
-	var score = jio.readFile(path);
-	
-	if(score == -1){
+	if(score === -1){
 		score = '0';
 	}
 	
@@ -29,14 +27,12 @@ function call(interaction){
 }
 
 function get(guild, user){
-
-	var path = './' + guild + '/' + user + '/count.txt'
+	let path = './' + guild + '/' + user + '/count.txt'
+	let score = jio.readFile(path);
 	
-	var score = jio.readFile(path);
-	
-	if(score == -1){
+	if(score === -1){
 		score = '0';
 	}
-	
+
 	return score;
 }
