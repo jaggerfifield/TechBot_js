@@ -1,16 +1,23 @@
+// index.js
+
+module.exports = {
+    send_message: send_message
+}
+
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 
-const { Client, Intents } = require('discord.js');
-const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
+const { Client, GatewayIntentBits } = require('discord.js');
+const client = new Client({intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", 32768]});
 
-var jio = require('./jio.js');
-var stats = require('./stats.js');
+const jio = require('./jio.js');
+const stats = require('./stats.js');
 
-var Caller = require('./caller.js');
-var run = new Caller();
+const Caller = require('./caller.js');
+const run = new Caller();
 
 const { token, clientId, guilds } = require('./config.json');
+//const {GatewayIntentBits} = require("discord-api-types");
 
 const rest = new REST({ version: '9' }).setToken(token);
 
@@ -61,8 +68,43 @@ const commands = [
 				required: false
 			}
 		]
-	}
-	]; 
+    },
+    {
+        name: 'stop',
+        description: 'Stop playing audio'
+    },
+    {
+        name: 'play',
+        description: 'Play audio in voice rooms',
+        options: [
+            {
+                name: 'source',
+                description: 'Audio target',
+                type: 3,
+                required: true
+            }
+        ]
+    },
+    {
+        name: 'pl',
+        description: 'playlist manager',
+        type: 1,
+        options: [
+            {
+                name: 'name',
+                description: 'create a playlist',
+                type: 3, // string
+                required: true,
+            },
+            {
+                name: 'add',
+                description: 'add a song to a playlist',
+                type: 3, //string
+                required: false
+            }
+        ]
+    }
+];
 
 (async () => {
 	try{
@@ -101,10 +143,13 @@ client.on('interactionCreate', async interaction => {
 		run.setInteraction(interaction);
 		jio.info("Attemtping to execute interaction: " + interaction.commandName);
 		let reply = eval("run." + interaction.commandName + "();");
-		await interaction.reply(reply);
+        if(reply != null){
+            await interaction.reply(reply);
+        }
 		jio.info("Interaction " + interaction.commandName + " finished successfully!");
 	} catch(e){
-		jio.error(e);
+		jio.error("[index.js]: " + e);
+        throw e;
 	}
 });
 
@@ -112,9 +157,14 @@ client.on('messageCreate', async message => {
 	if(stats.run(message)){
 		if(!allowGIF){
 			jio.warn("Message deleted.");
-			message.delete();
+			await message.delete();
 		}
 	}
 })
+
+function send_message(channel, message){
+    const here = client.channels.cache.get(channel);
+    here.send(message);
+}
 
 client.login(token);

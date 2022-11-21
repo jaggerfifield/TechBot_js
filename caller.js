@@ -1,10 +1,12 @@
 // caller.js
-var avatar = require('./avatar.js');
-var help = require('./help.js');
-var info = require('./info.js')
-var jio = require('./jio.js');
-var RTS = require('./rts.js');
-var score = require('./score.js');
+const avatar = require('./avatar.js');
+const help = require('./help.js');
+const info = require('./info.js')
+const jio = require('./jio.js');
+const pl = require('./pl.js');
+const play = require('./play.js');
+const RTS = require('./rts.js');
+const score = require('./score.js');
 
 class Caller{
 	constructor(){
@@ -23,6 +25,14 @@ class Caller{
 	info(){
 		return info.call(this.interaction);
 	}
+
+    pl(){
+        return pl.call(this.interaction);
+    }
+
+    play(){
+        return play.call(this.interaction);
+    }
 	
 	rts(){
 		return RTS.call(null);
@@ -32,6 +42,10 @@ class Caller{
 	score(){
 		return score.call(this.interaction);
 	}
+
+    stop(){
+        return play.stop(this.interaction);
+    }
 	
 	setInteraction(interaction){
 		this.interaction = interaction;
