@@ -4,23 +4,23 @@ module.exports = {
 	run: run
 };
 
-var jio = require('./jio.js');
+const jio = require('./jio.js');
 
 function checker(message){
 	// Check if the message is not allowed; bad message returns true
-	var check = false;
-	var mContent = message.content;
+	let check = false;
+	let mContent = message.content;
 	
-	if(mContent.search('tenor.com') != -1){
+	if(mContent.search('tenor.com') !== -1){
 		jio.warn("Found 'tenor.com' in message from " + message.author.username);
 		check = true;
 	}
 	
 	return check;
-};
+}
 
 function run(message){
-	var mStatus = false;
+	let mStatus = false;
 	
 	// Update user scores
 	updateUserScore(message);
@@ -37,15 +37,14 @@ function run(message){
 	
 	// Return the status of the message (true means delete the message)
 	return mStatus;
-};
+}
 
 function updateUserScore(message){
-	var userID = message.author.id;
-	var guildID = message.guildId;
-	
-	var path = './' + guildID + '/' + userID;
-	var file = path + '/count.txt';
-	var content = jio.readFile(file.toString());
+	let userID = message.author.id;
+	let guildID = message.guildId;
+	let path = './' + guildID + '/' + userID;
+	let file = path + '/count.txt';
+	let content = jio.readFile(file.toString());
 	
 	if(!jio.checkPath(path)){
 		jio.makePath(path);
@@ -58,13 +57,12 @@ function updateUserScore(message){
 }
 
 function updateServerLogs(message){
-	var guildId = message.guildId;
+	let guildId = message.guildId;
+	let path = './' + guildId;
+	let file = path + '/log.txt';
+	let content = jio.readFile(file.toString());
 	
-	var path = './' + guildId;
-	var file = path + '/log.txt';
-	var content = jio.readFile(file.toString());
-	
-	if(content == -1){
+	if(content === -1){
 		content = '';
 		jio.warn("Server log file made!");
 	}
