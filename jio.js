@@ -7,7 +7,8 @@ module.exports = {
 	checkPath: checkPath,
 	info: info,
 	warn: warn,
-	error: error
+	error: error,
+    debug: debug
 };
 
 let fs = require('fs');
@@ -58,4 +59,8 @@ function warn(text){
 
 function error(text){
 	console.error("\x1b[38;2;237;49;35m[Error]\x1b[0m : " + text);
+}
+
+function debug(text){
+    console.debug("\x1b[38;2;127;127;127m[Debug] : " + text + "\x1b[0m");
 }

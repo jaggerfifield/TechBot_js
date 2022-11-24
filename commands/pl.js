@@ -1,10 +1,25 @@
 // pl.js
 
+const { SlashCommandBuilder } = require('discord.js');
+
 module.exports = {
-    call: call
+    data: new SlashCommandBuilder()
+    .setName('pl')
+    .setDescription('Playlist manager')
+    .addStringOption(option =>
+    option.setName('name')
+    .setDescription('The playlist')
+    .setRequired(true))
+    .addStringOption(option =>
+    option.setName('add')
+    .setDescription('add a song to the playlist')
+    .setRequired(false)),
+    async execute(interaction) {
+        await interaction.reply(call(interaction));
+        },
 };
 
-const jio = require('./jio.js');
+const jio = require('../jio.js');
 const play = require('./play.js');
 
 function call(interaction){

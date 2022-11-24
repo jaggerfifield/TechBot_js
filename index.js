@@ -4,153 +4,90 @@ module.exports = {
     send_message: send_message
 }
 
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-
-const { Client, GatewayIntentBits } = require('discord.js');
-const client = new Client({intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", 32768]});
-
 const jio = require('./jio.js');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const { token, clientId, guild } = require('./config.json');
+const { REST, Routes, Client, Collection, Events } = require('discord.js');
+
+// The intents are from https://discord.com/developers/docs/topics/gateway#gateway-intents
+// 1<<0 : GUILDS    1<<7 : GUILD_VOICE_STATES   1<<9 : GUILD_MESSAGES   1<<15 : MESSAGE_CONTENT
+const client = new Client({intents: [1<<0, 1<<7, 1<<9, 1<<15]})
+
+// Slash commands constants
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file=>file.endsWith('.js'));
+
+const commands = []
+client.commands = new Collection();
+
+// Import commands from the commands folder
+for(const file of commandFiles){
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    if('data' in command && 'execute' in command){
+        client.commands.set(command.data.name, command);
+        commands.push(command.data.toJSON())
+    }else{
+        jio.error(`The command at ${filePath} is missing a required "data" or "execute" property!`);
+    }
+}
+
+const rest = new REST({ version: '10' }).setToken(token);
+
 const stats = require('./stats.js');
-
-const Caller = require('./caller.js');
-const run = new Caller();
-
-const { token, clientId, guilds } = require('./config.json');
-//const {GatewayIntentBits} = require("discord-api-types");
-
-const rest = new REST({ version: '9' }).setToken(token);
 
 const allowGIF = false;
 
-const commands = [
-	{
-		name: 'avatar',
-		description: 'Get a link to the user\'s avatar.'
-	},
-	{
-		name: 'help',
-		description: 'Get common commands.'
-	},
-	{
-		name: 'info',
-		description: 'Provides useful information.',
-		options: [{
-			name: 'user',
-			description: 'Get info about a user.',
-			type: 1,
-			required: false,
-			options: [{
-				name: 'username',
-				description: 'A server member',
-				type: 6,
-				required: false
-			}]
-		},{
-			name: 'server',
-			description: 'get info on the server.',
-			type: 1,
-			required: false
-		}]
-	},
-	{
-		name: 'rts',
-		description: 'What does this do again?'
-	},
-	{
-		name: 'score',
-		description: 'See total messages sent*',
-		options: [
-			{
-				name: 'user',
-				description: 'who to look up',
-				type: 6, // We want a USER type, more info: https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups
-				required: false
-			}
-		]
-    },
-    {
-        name: 'stop',
-        description: 'Stop playing audio'
-    },
-    {
-        name: 'play',
-        description: 'Play audio in voice rooms',
-        options: [
-            {
-                name: 'source',
-                description: 'Audio target',
-                type: 3,
-                required: true
-            }
-        ]
-    },
-    {
-        name: 'pl',
-        description: 'playlist manager',
-        type: 1,
-        options: [
-            {
-                name: 'name',
-                description: 'create a playlist',
-                type: 3, // string
-                required: true,
-            },
-            {
-                name: 'add',
-                description: 'add a song to a playlist',
-                type: 3, //string
-                required: false
-            }
-        ]
-    }
-];
+jio.info("Adding guild: " + guild);
+if(!jio.checkPath('./' + guild)){
+    jio.makePath('./' + guild);
+    jio.warn("Made guild dir at: ./" + guild);
+}else{
+    jio.info("Found guild dir: ./" + guild);
+}
 
 (async () => {
 	try{
-		jio.info("Started refreshing application (/) commands.");
-		
-		for(let i = 0; i < guilds.length; i++){
-			jio.info("Adding guild: " + guilds[i]);
-			if(!jio.checkPath('./' + guilds[i])){
-				jio.makePath('./' + guilds[i]);
-				jio.warn("Made guild dir at: ./" + guilds[i]);
-			}else{
-				jio.info("Found guild dir: ./" + guilds[i]);
-			}
-			await rest.put( Routes.applicationGuildCommands(clientId, guilds[i]), { body: commands } );
-		}
+		jio.info(`Started refreshing ${commands.length} application (/) commands.`);
 
-		jio.info("Successfully reloaded application (/) commands.");
+        await rest.put(
+                Routes.applicationGuildCommands(clientId, guild),
+                { body: commands },
+                );
+
+		jio.info(`Successfully reloaded application (/) commands.`);
+
 	}catch(error){
 		jio.error(error);
 	}
 })();
 
-client.on('ready', () => {
-	jio.info("Logged in as " + client.user.tag + "!");
+client.once('ready', () => {
+	jio.info(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('interactionCreate', async interaction => {
-	jio.info("Found interaction!");
-	
-	if(!interaction.isCommand()){
-		jio.warn("Interaction " + interaction.commandName + " is not a TechBot_ command.");
-		return;
-	} 
+// Trigger on interactions
+client.on(Events.InteractionCreate, async interaction => {
+    if(!interaction.isChatInputCommand()) return;
 
-	try{
-		run.setInteraction(interaction);
-		jio.info("Attemtping to execute interaction: " + interaction.commandName);
-		let reply = eval("run." + interaction.commandName + "();");
-        if(reply != null){
-            await interaction.reply(reply);
-        }
-		jio.info("Interaction " + interaction.commandName + " finished successfully!");
-	} catch(e){
-		jio.error("[index.js]: " + e);
-        throw e;
-	}
+    jio.info("Found interaction");
+
+    const command = interaction.client.commands.get(interaction.commandName);
+
+    if(!command){
+        jio.error(`No command matching ${interaction.commandName} was found`)
+        return;
+    }
+
+    try{
+        await command.execute(interaction);
+    } catch (error) {
+        jio.error(error);
+        await interaction.reply({content: 'There was an error processing this command!', ephemeral: true});
+    }
+
 });
 
 client.on('messageCreate', async message => {
@@ -167,4 +104,4 @@ function send_message(channel, message){
     here.send(message);
 }
 
-client.login(token);
+client.login(token).then(r => jio.debug(`Login in with token: ${r}`));

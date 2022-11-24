@@ -1,14 +1,22 @@
 // play.js
 
+const { SlashCommandBuilder } = require('discord.js');
+
 module.exports = {
-    call: call,
-    loadPlaylist: loadPlaylist,
-    appendSong: appendSong,
-    stop: stop
+    data: new SlashCommandBuilder()
+    .setName('play')
+    .setDescription('Play a audio from source.')
+    .addStringOption(option =>
+        option.setName('source')
+        .setDescription('The audio source to play')
+        .setRequired(true)),
+    async execute(interaction) {
+        await interaction.reply(call(interaction));
+        },
 };
 
-const index = require('./index')
-const jio = require('./jio.js');
+const index = require('../index')
+const jio = require('../jio.js');
 const ytdl = require('ytdl-core');
 const {createReadStream} = require('node:fs');
 const {getVoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, AudioPlayerStatus} = require('@discordjs/voice');
