@@ -13,6 +13,8 @@ module.exports = {
     async execute(interaction) {
         await interaction.reply(call(interaction));
         },
+    loadPlaylist: loadPlaylist,
+    appendSong: appendSong
 };
 
 const index = require('../index')
