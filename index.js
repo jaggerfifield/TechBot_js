@@ -5,50 +5,53 @@ module.exports = {
 }
 
 const jio = require('./jio.js');
+const stats = require('./stats.js');
 const fs = require('node:fs');
 const path = require('node:path');
 
 const { token, clientId } = require('./config.json');
 const { REST, Routes, Client, Collection, Events } = require('discord.js');
 
+const rest = new REST({ version: '10' }).setToken(token);
+
 // The intents are from https://discord.com/developers/docs/topics/gateway#gateway-intents
 // 1<<0 : GUILDS    1<<7 : GUILD_VOICE_STATES   1<<9 : GUILD_MESSAGES   1<<15 : MESSAGE_CONTENT
 const client = new Client({intents: [1<<0, 1<<7, 1<<9, 1<<15]})
 
-// Slash commands constants
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file=>file.endsWith('.js'));
+// TODO this should not exist, need to create a word filter file.
+const allowGIF = false;
 
-const commands = []
-client.commands = new Collection();
+function importCommands(){
+    // Slash commands constants
+    const commandsPath = path.join(__dirname, 'commands');
+    const commandFiles = fs.readdirSync(commandsPath).filter(file=>file.endsWith('.js'));
 
-// Import commands from the commands folder
-for(const file of commandFiles){
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    if('data' in command && 'execute' in command){
-        client.commands.set(command.data.name, command);
-        commands.push(command.data.toJSON())
-    }else{
-        jio.error(`The command at ${filePath} is missing a required "data" or "execute" property!`);
+    client.commands = new Collection();
+    client.cmd = [];
+
+    // Import commands from the commands folder
+    for(const file of commandFiles){
+        const filePath = path.join(commandsPath, file);
+        const command = require(filePath);
+        if('data' in command && 'execute' in command){
+            client.commands.set(command.data.name, command);
+            client.cmd.push(command.data.toJSON())
+        }else{
+            jio.error(`The command at ${filePath} is missing a required "data" or "execute" property!`);
+        }
     }
 }
 
-const rest = new REST({ version: '10' }).setToken(token);
-
-const stats = require('./stats.js');
-
-const allowGIF = false;
-
-
-
 (async () => {
+
+    importCommands();
+
 	try{
-		jio.info(`Started refreshing ${commands.length} application (/) commands.`);
+		jio.info(`Started refreshing ${client.cmd.length} application (/) commands.`);
 
         await rest.put(
                 Routes.applicationCommands(clientId),
-                { body: commands },
+                { body: client.cmd },
                 );
 
 		jio.info(`Successfully reloaded application (/) commands.`);
