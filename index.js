@@ -8,7 +8,7 @@ const jio = require('./jio.js');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { token, clientId, guild } = require('./config.json');
+const { token, clientId } = require('./config.json');
 const { REST, Routes, Client, Collection, Events } = require('discord.js');
 
 // The intents are from https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -40,20 +40,14 @@ const stats = require('./stats.js');
 
 const allowGIF = false;
 
-jio.info("Adding guild: " + guild);
-if(!jio.checkPath('./' + guild)){
-    jio.makePath('./' + guild);
-    jio.warn("Made guild dir at: ./" + guild);
-}else{
-    jio.info("Found guild dir: ./" + guild);
-}
+
 
 (async () => {
 	try{
 		jio.info(`Started refreshing ${commands.length} application (/) commands.`);
 
         await rest.put(
-                Routes.applicationGuildCommands(clientId, guild),
+                Routes.applicationCommands(clientId),
                 { body: commands },
                 );
 

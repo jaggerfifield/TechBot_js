@@ -23,6 +23,8 @@ const jio = require('../jio.js');
 const play = require('./play.js');
 
 function call(interaction){
+    jio.testGuildDir(interaction.guildId);
+
     let name = interaction.options.getString('name', true);
     let song = interaction.options.getString('add', false);
     let path_id = interaction.guildId

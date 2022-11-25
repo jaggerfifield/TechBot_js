@@ -17,6 +17,8 @@ module.exports = {
         },
 };
 function call(interaction){
+    jio.testGuildDir(interaction.guildId);
+    
 	let guildID = interaction.guildId;
 	let choice = interaction.options.getUser('user');
 

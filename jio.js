@@ -5,6 +5,7 @@ module.exports = {
 	makePath: makePath,
 	writeFile: writeFile,
 	checkPath: checkPath,
+    testGuildDir: testGuildDir,
 	info: info,
 	warn: warn,
 	error: error,
@@ -40,6 +41,12 @@ function checkPath(path){
 	return fs.existsSync(path);
 }
 
+function testGuildDir(guildId){
+    if(!checkPath('./' + guildId)){
+        makePath('./' + guildId);
+        warn("Made guild dir at: ./" + guildId);
+    }
+}
 function makePath(path){
 	fs.mkdir(path.toString(), (err) => {
 		if(err){

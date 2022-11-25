@@ -20,7 +20,9 @@ function checker(message){
 }
 
 function run(message){
-	let mStatus = false;
+	let mStatus;
+
+    jio.testGuildDir(message.guildId);
 	
 	// Update user scores
 	updateUserScore(message);
@@ -38,7 +40,6 @@ function run(message){
 	// Return the status of the message (true means delete the message)
 	return mStatus;
 }
-
 function updateUserScore(message){
 	let userID = message.author.id;
 	let guildID = message.guildId;
