@@ -1,7 +1,8 @@
 // index.js
 
 module.exports = {
-    send_message: send_message
+    send_message: send_message,
+	send_file: send_file
 }
 
 const jio = require('./jio.js');
@@ -78,6 +79,23 @@ client.on(Events.InteractionCreate, async interaction => {
         return;
     }
 
+	if(interaction.commandName === 'rand'){
+		await interaction.deferReply();
+		let file = await command.execute(interaction);
+		if(file != null){
+			await interaction.editReply("Uploading file . . .")
+			let here = client.channels.cache.get(interaction.channelId);
+			here.send({
+				files: [{
+					attachment: 'list.txt',
+					name:'list.txt',
+					description:'A file of random values.'
+				}]
+			});
+		}
+		return;
+	}
+
     try{
         await command.execute(interaction);
     } catch (error) {
@@ -99,6 +117,11 @@ client.on('messageCreate', async message => {
 function send_message(channel, message){
     const here = client.channels.cache.get(channel);
     here.send(message);
+}
+
+function send_file(channel, file){
+	const here = client.channels.cache.get(channel);
+	here.send('File: ', {files: [file]});
 }
 
 client.login(token).then(r => jio.debug(`Login in with token: ${r}`));
