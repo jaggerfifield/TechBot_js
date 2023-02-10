@@ -57,8 +57,6 @@ function startVoice(interaction, source){
                 adapterCreator: interaction.channel.guild.voiceAdapterCreator
             });
 
-	console.log(connection)
-
             connection.subscribe(player);
             index.send_message(interaction.channelId, "Now playing: " + source);
             player.play(loadSong(source));
