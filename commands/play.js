@@ -57,6 +57,8 @@ function startVoice(interaction, source){
                 adapterCreator: interaction.channel.guild.voiceAdapterCreator
             });
 
+	console.log(connection)
+
             connection.subscribe(player);
             index.send_message(interaction.channelId, "Now playing: " + source);
             player.play(loadSong(source));
@@ -89,6 +91,9 @@ function get_play_channel(guildId){
         index.send_message("No channel found in config!");
         return
     }
+
+    channel_ids = channel_ids.replace(/[\n\r]/g, '');
+
     return channel_ids;
 }
 
