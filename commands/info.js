@@ -23,7 +23,8 @@ function call(interaction){
 
 	//if(type === 'user'){
 
-	let sent = score.get(interaction.guildId, user);
+	//let sent = score.get(interaction.guildId, user);
+	let sent = 'Err';
 
     console.log(user);
 

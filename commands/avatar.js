@@ -5,8 +5,18 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
     .setName('avatar')
-    .setDescription('Return your discord avatar link.'),
+    .setDescription('Return a discord avatar link.')
+    .addUserOption(option =>
+    option.setName('user')
+    .setDescription('User to query')
+    .setRequired(true)),
     async execute(interaction) {
-        await interaction.reply(interaction.user.avatarURL());
+        await interaction.reply(call(interaction));
         },
 };
+
+function call(interaction){
+    let user = interaction.options.getUser('user', true);
+
+    return user.avatarURL()
+}

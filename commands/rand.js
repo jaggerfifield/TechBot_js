@@ -17,7 +17,7 @@ module.exports = {
 		.setDescription('The maximum value to use')
 		.setRequired(true)),
     async execute(interaction) {
-		call(interaction);
+		return call(interaction);
         },
 };
 
@@ -32,12 +32,12 @@ function call(interaction){
 	let max = interaction.options.getInteger('max', true);
 	let channelId = interaction.channelId;
 
-	if(elements > 5000000){
+	if(elements > 2000000){
 		interaction.editReply("Too many elements!")
-		return null;
+		return -1;
 	}
 
-	jio.info("Generating a " + elements + " long ranodm number file.")
+	jio.info("Generating a " + elements + " long random number file.")
 
 	let out = "";
 
@@ -50,14 +50,7 @@ function call(interaction){
 	jio.writeFile("./list.txt", out);
 
 	jio.info("Sending file . . .")
-	//interaction.editReply({
-	//	files: [{
-	//		attachment:'./list.txt',
-	//		name:'list.txt',
-	//		description:'A file of random values'
-	//	}]
-	//});
-	return './list.txt';
+	return 0;
 }
 
 

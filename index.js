@@ -82,7 +82,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	if(interaction.commandName === 'rand'){
 		await interaction.deferReply();
 		let file = await command.execute(interaction);
-		if(file != null){
+		if(file === 0){
 			await interaction.editReply("Uploading file . . .")
 			let here = client.channels.cache.get(interaction.channelId);
 			here.send({
