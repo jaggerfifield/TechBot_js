@@ -14,7 +14,8 @@ module.exports = {
         await interaction.reply(call(interaction));
         },
     loadPlaylist: loadPlaylist,
-    appendSong: appendSong
+    appendSong: appendSong,
+	stop: stop
 };
 
 const index = require('../index')
@@ -101,7 +102,7 @@ function loadSong(song){
 
     if(song.includes(".mp3") && !song.includes("http")){
         jio.info("Local resource requested.");
-        sound = createAudioResource(createReadStream(song.replace(/['"]/g,'')));
+        sound = createAudioResource(createReadStream(song.replace(/["]/g,'')));
     }else{
         sound = createAudioResource(ytdl(song,
             {
@@ -118,7 +119,7 @@ function loadSong(song){
     return sound;
 }
 
-function loadPlaylist(interaction, name, path){
+function loadPlaylist(interaction, name, path, shf){
     let content = jio.readFile(path);
     content = content.split('\n');
     content.pop(); // Remove the extra newline character
@@ -127,6 +128,11 @@ function loadPlaylist(interaction, name, path){
     pl_count.push(content.length);
 
     console.log(content);
+	
+	if(shf){
+		content = shuffle(content);
+	}
+	
     for(let s in content){
         songs.push(content[s]);
     }
@@ -143,10 +149,31 @@ function appendSong(name, song){
     }
 }
 
+// Provided from: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex > 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
+
 function stop(interaction){
     const connection = getVoiceConnection(interaction.guildId);
     if(connection != null){
         connection.destroy();
     }
+	
     return "Stopped";
 }

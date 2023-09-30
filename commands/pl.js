@@ -13,7 +13,10 @@ module.exports = {
     .addStringOption(option =>
     option.setName('add')
     .setDescription('add a song to the playlist')
-    .setRequired(false)),
+    .setRequired(false))
+	.addBooleanOption(option =>
+	option.setName('shuffle')
+	.setDescription('Set to true to shuffle playlist.')),
     async execute(interaction) {
         await interaction.reply(call(interaction));
         },
@@ -27,19 +30,24 @@ function call(interaction){
 
     let name = interaction.options.getString('name', true);
     let song = interaction.options.getString('add', false);
+	let shuffle = interaction.options.getBoolean('shuffle', false);
     let path_id = interaction.guildId
+
+	if(shuffle == null){
+		shuffle = false
+	}
 
     if(song !== null){
         addSong(name, song, path_id);
     }else{
-        play_pl(interaction, name);
+        play_pl(interaction, name, shuffle);
     }
     return 'OK'
 }
 
-function play_pl(interaction, name){
+function play_pl(interaction, name, shuffle){
     let path = './' + interaction.guildId + '/playlists/' + name + '.txt'
-    play.loadPlaylist(interaction, name, path)
+    play.loadPlaylist(interaction, name, path, shuffle);
 }
 
 function addSong(name, song, path_id){
